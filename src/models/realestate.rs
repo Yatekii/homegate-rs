@@ -1,14 +1,12 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-
-use crate::models::listing::{Listing};
+use crate::models::listing::Listing;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct RealEstate {
     pub id: String,
     pub listing: Listing,
-
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -19,14 +17,14 @@ pub struct ListingTypeWrapper {
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum OfferType {
-    RENT
+    RENT,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum PriceUnit {
     MONTHLY,
     M2YEARLY,
-    WEEKLY
+    WEEKLY,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]

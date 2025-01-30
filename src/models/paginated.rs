@@ -1,5 +1,5 @@
-use serde::{Serialize, Deserialize};
 use crate::models::realestate::RealEstate;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -15,10 +15,14 @@ pub fn parse_search_result(str: &str) -> Paginated<RealEstate> {
     serde_json::from_str(str).unwrap()
 }
 
+pub fn parse_listings_result(str: &str) -> Paginated<RealEstate> {
+    serde_json::from_str(str).unwrap()
+}
+
 #[cfg(test)]
 mod test {
-    use std::fs;
     use crate::models::paginated::parse_search_result;
+    use std::fs;
 
     #[test]
     pub fn parse_result_2() {

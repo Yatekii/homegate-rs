@@ -1,6 +1,6 @@
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::fmt::{Display, Formatter};
-use serde::{Deserialize, Serialize};
 
 use crate::models::address::Address;
 use crate::models::realestate::OfferType;
@@ -56,7 +56,6 @@ pub struct Lister {
     pub phone: Option<String>,
 }
 
-
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct Attachment {
@@ -65,7 +64,6 @@ pub struct Attachment {
     pub url: String,
     pub file: String,
 }
-
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
@@ -89,7 +87,7 @@ pub struct Localization {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum PriceInterval {
-    MONTH
+    MONTH,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -103,7 +101,7 @@ pub struct Price {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum Currency {
-    CHF
+    CHF,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -125,5 +123,4 @@ pub struct Listing {
     pub localization: Localization,
     pub offer_type: OfferType,
     pub prices: Prices,
-
 }

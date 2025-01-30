@@ -1,10 +1,10 @@
 use reqwest::{Response, Url};
 use serde::{Deserialize, Serialize};
 
-use crate::api::BACKEND_URL;
 use crate::api::request::post_url;
+use crate::api::BACKEND_URL;
 use crate::models::listing::Category;
-use crate::models::paginated::{Paginated, parse_search_result};
+use crate::models::paginated::{parse_search_result, Paginated};
 use crate::models::realestate::{OfferType, RealEstate};
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
@@ -137,13 +137,9 @@ pub struct SearchRequest {
 }
 
 const LT: LocaleTemplate = LocaleTemplate {
-    urls: LocaleUrlsTemplate {
-        t: true
-    },
+    urls: LocaleUrlsTemplate { t: true },
     attachments: true,
-    text: LocaleTextTemplate {
-        title: true,
-    },
+    text: LocaleTextTemplate { title: true },
 };
 
 pub fn default_search<'a>() -> SearchRequest {
@@ -176,17 +172,27 @@ pub fn default_search<'a>() -> SearchRequest {
                 Category::HobbyRoom,
                 Category::CellarCompartment,
                 Category::AtticCompartment,
-            ]).iter().map(|c| c.to_string()).collect(),
-            exclude_categories: Vec::from(vec![
-                Category::FurnishedFlat,
-            ]).iter().map(|c| c.to_string()).collect(),
-            living_space: FromTo { from: Some(60), to: None },
+            ])
+            .iter()
+            .map(|c| c.to_string())
+            .collect(),
+            exclude_categories: Vec::from(vec![Category::FurnishedFlat])
+                .iter()
+                .map(|c| c.to_string())
+                .collect(),
+            living_space: FromTo {
+                from: Some(60),
+                to: None,
+            },
             location: Location {
                 latitude: 47.35985528332324,
                 longitude: 8.541818987578152,
                 radius: 622,
             },
-            monthly_rent: FromTo { from: Some(500), to: None },
+            monthly_rent: FromTo {
+                from: Some(500),
+                to: None,
+            },
             number_of_rooms: FromTo {
                 from: Some(2),
                 to: None,
@@ -199,7 +205,10 @@ pub fn default_search<'a>() -> SearchRequest {
             listing: ListingTemplate {
                 address: AddressTemplate {
                     country: true,
-                    geo_coordinates: GeoCoordsTemplate { latitude: true, longitude: true },
+                    geo_coordinates: GeoCoordsTemplate {
+                        latitude: true,
+                        longitude: true,
+                    },
                     locality: true,
                     post_office_box_number: true,
                     postal_code: true,
@@ -216,7 +225,10 @@ pub fn default_search<'a>() -> SearchRequest {
                     total_floor_space: true,
                 },
                 id: true,
-                lister: ListerTemplate { logo_url: true, phone: true },
+                lister: ListerTemplate {
+                    logo_url: true,
+                    phone: true,
+                },
                 localization: LocalizationTemplate {
                     de: LT.clone(),
                     en: LT.clone(),
@@ -255,18 +267,18 @@ pub async fn search(location: &Location) -> Result<Paginated<RealEstate>, reqwes
 mod tests {
     use std::fs;
 
-    use crate::api::search::{default_search, Location, search, SearchRequest};
+    use crate::api::search::{default_search, search, Location, SearchRequest};
 
     const ZURICH_LATLNG: (f64, f64) = (47.36667, 8.55);
 
     #[tokio::test]
     pub async fn search_apartment() {
-        let paginated_result = search(
-            &Location {
-                latitude: ZURICH_LATLNG.0 as f32,
-                longitude: ZURICH_LATLNG.1 as f32,
-                radius: 1000,
-            }).await;
+        let paginated_result = search(&Location {
+            latitude: ZURICH_LATLNG.0 as f32,
+            longitude: ZURICH_LATLNG.1 as f32,
+            radius: 1000,
+        })
+        .await;
         assert!(paginated_result.is_ok());
 
         let pr = paginated_result.unwrap();

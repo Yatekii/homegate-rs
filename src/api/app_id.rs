@@ -1,4 +1,3 @@
-
 use std::io::Cursor;
 
 use byteorder::{BigEndian, ReadBytesExt};
@@ -14,7 +13,6 @@ fn calculate_hmac(s: &str) -> String {
     let mut h: HmacSha256 = HmacSha256::new_from_slice(&SECRET).unwrap();
     h.update(s.as_bytes());
     let result = h.finalize().into_bytes();
-
 
     let b = result[result.len() - 1] & 0xF;
     let mut buffer: Vec<u8> = vec![0; 4];
@@ -48,19 +46,18 @@ pub fn app_version() -> String {
 
 #[cfg(test)]
 mod test {
-    
-    
-    
 
     use crate::api::app_id::calculate_app_id;
 
     #[test]
     fn test_app_id() -> Result<(), std::io::Error> {
-        assert_eq!("1926888397", calculate_app_id(
-            &chrono::NaiveDateTime::new(
+        assert_eq!(
+            "1926888397",
+            calculate_app_id(&chrono::NaiveDateTime::new(
                 chrono::NaiveDate::from_ymd(2022, 1, 25),
-                chrono::NaiveTime::from_hms(1, 30, 56)),
-        ));
+                chrono::NaiveTime::from_hms(1, 30, 56)
+            ),)
+        );
         return Ok(());
     }
 }
