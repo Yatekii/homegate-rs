@@ -15,10 +15,6 @@ pub fn parse_search_result(str: &str) -> Paginated<RealEstate> {
     serde_json::from_str(str).unwrap()
 }
 
-pub fn parse_listings_result(str: &str) -> Paginated<RealEstate> {
-    serde_json::from_str(str).unwrap()
-}
-
 #[cfg(test)]
 mod test {
     use crate::models::paginated::parse_search_result;

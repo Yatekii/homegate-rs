@@ -35,6 +35,9 @@ pub enum Category {
     CellarCompartment,
     AtticCompartment,
     FurnishedFlat,
+    Plot,
+    BuildingLand,
+    ResidentialCommercialBuilding,
 }
 
 impl Display for Category {
@@ -46,8 +49,8 @@ impl Display for Category {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct Characteristics {
-    pub living_space: u32,
-    pub number_of_rooms: f32,
+    pub living_space: Option<u32>,
+    pub number_of_rooms: Option<f32>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -74,6 +77,7 @@ pub struct LocalizationEntryText {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct LocalizationEntry {
+    #[serde(default)]
     pub attachments: Vec<Attachment>,
     pub text: LocalizationEntryText,
 }
@@ -82,7 +86,7 @@ pub struct LocalizationEntry {
 #[serde(rename_all = "camelCase")]
 pub struct Localization {
     pub de: Option<LocalizationEntry>,
-    pub primary: String,
+    pub primary: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -92,11 +96,17 @@ pub enum PriceInterval {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct Price {
+pub struct RentPrice {
     pub interval: Option<PriceInterval>,
     pub net: Option<u32>,
     pub gross: Option<u32>,
     pub extra: Option<u32>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct BuyPrice {
+    pub price: Option<u32>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -107,9 +117,9 @@ pub enum Currency {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Prices {
-    pub rent: Option<Price>,
+    pub rent: Option<RentPrice>,
     pub currency: Currency,
-    pub buy: Option<Price>,
+    pub buy: Option<BuyPrice>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -123,4 +133,16 @@ pub struct Listing {
     pub localization: Localization,
     pub offer_type: OfferType,
     pub prices: Prices,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ListingEntry {
+    pub listing: Listing,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ListingResponse {
+    pub listings: Vec<ListingEntry>,
 }

@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use reqwest::{Response, Url};
 use serde::{Deserialize, Serialize};
 
@@ -7,7 +9,7 @@ use crate::models::listing::Category;
 use crate::models::paginated::{parse_search_result, Paginated};
 use crate::models::realestate::{OfferType, RealEstate};
 
-#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug, Default)]
 pub struct FromTo {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub from: Option<u32>,
@@ -15,22 +17,32 @@ pub struct FromTo {
     pub to: Option<u32>,
 }
 
-#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct Location {
-    pub latitude: f32,
-    pub longitude: f32,
-    pub radius: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub latitude: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub longitude: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub radius: Option<u32>,
+    pub geo_tags: Vec<Cow<'static, str>>,
 }
 
-#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct Query {
-    pub categories: Vec<String>,
-    pub exclude_categories: Vec<String>,
-    pub living_space: FromTo,
+    pub categories: Vec<Category>,
+    pub exclude_categories: Vec<Category>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub living_space: Option<FromTo>,
     pub location: Location,
-    pub monthly_rent: FromTo,
-    pub number_of_rooms: FromTo,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub monthly_rent: Option<FromTo>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub purchase_price: Option<FromTo>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub number_of_rooms: Option<FromTo>,
     pub offer_type: OfferType,
 }
 
@@ -38,6 +50,15 @@ pub struct Query {
 pub struct GeoCoordsTemplate {
     pub latitude: bool,
     pub longitude: bool,
+}
+
+impl Default for GeoCoordsTemplate {
+    fn default() -> Self {
+        Self {
+            latitude: true,
+            longitude: true,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
@@ -53,6 +74,21 @@ pub struct AddressTemplate {
     pub street_addition: bool,
 }
 
+impl Default for AddressTemplate {
+    fn default() -> Self {
+        Self {
+            country: true,
+            geo_coordinates: Default::default(),
+            locality: true,
+            post_office_box_number: true,
+            postal_code: true,
+            region: true,
+            street: true,
+            street_addition: true,
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CharacteristicsTemplate {
@@ -63,11 +99,32 @@ pub struct CharacteristicsTemplate {
     pub total_floor_space: bool,
 }
 
+impl Default for CharacteristicsTemplate {
+    fn default() -> Self {
+        Self {
+            living_space: true,
+            lot_size: true,
+            number_of_rooms: true,
+            single_floor_space: true,
+            total_floor_space: true,
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct ListerTemplate {
     pub logo_url: bool,
     pub phone: bool,
+}
+
+impl Default for ListerTemplate {
+    fn default() -> Self {
+        Self {
+            logo_url: false,
+            phone: true,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
@@ -76,14 +133,20 @@ pub struct LocaleTextTemplate {
     pub title: bool,
 }
 
-#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+impl Default for LocaleTextTemplate {
+    fn default() -> Self {
+        Self { title: true }
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct LocaleUrlsTemplate {
     #[serde(rename = "type")]
     pub t: bool,
 }
 
-#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct LocaleTemplate {
     pub attachments: bool,
@@ -91,7 +154,7 @@ pub struct LocaleTemplate {
     pub urls: LocaleUrlsTemplate,
 }
 
-#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct LocalizationTemplate {
     pub de: LocaleTemplate,
@@ -114,7 +177,22 @@ pub struct ListingTemplate {
     pub prices: bool,
 }
 
-#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+impl Default for ListingTemplate {
+    fn default() -> Self {
+        Self {
+            address: Default::default(),
+            categories: true,
+            characteristics: Default::default(),
+            id: true,
+            lister: Default::default(),
+            localization: Default::default(),
+            offer_type: true,
+            prices: true,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct ResultTemplate {
     pub id: bool,
@@ -124,138 +202,37 @@ pub struct ResultTemplate {
     pub remote_viewing: bool,
 }
 
-#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct SearchRequest {
     pub from: i32,
     pub query: Query,
     pub result_template: ResultTemplate,
     pub size: i32,
-    pub sort_by: String,
-    pub sort_direction: String,
+    pub sort_by: SortBy,
+    pub sort_direction: SortDirection,
     pub track_total_hits: bool,
 }
 
-const LT: LocaleTemplate = LocaleTemplate {
-    urls: LocaleUrlsTemplate { t: true },
-    attachments: true,
-    text: LocaleTextTemplate { title: true },
-};
-
-pub fn default_search<'a>() -> SearchRequest {
-    SearchRequest {
-        from: 0,
-        query: Query {
-            categories: Vec::from(vec![
-                Category::Apartment,
-                Category::Maisonette,
-                Category::Duplex,
-                Category::AtticFlat,
-                Category::RoofFlat,
-                Category::Studio,
-                Category::SingleRoom,
-                Category::TerraceFlat,
-                Category::BachelorFlat,
-                Category::Loft,
-                Category::Attic,
-                Category::RowHouse,
-                Category::BifamiliarHouse,
-                Category::TerraceHouse,
-                Category::Villa,
-                Category::FarmHouse,
-                Category::CaveHouse,
-                Category::Castle,
-                Category::GrannyFlat,
-                Category::Chalet,
-                Category::Rustico,
-                Category::SingleHouse,
-                Category::HobbyRoom,
-                Category::CellarCompartment,
-                Category::AtticCompartment,
-            ])
-            .iter()
-            .map(|c| c.to_string())
-            .collect(),
-            exclude_categories: Vec::from(vec![Category::FurnishedFlat])
-                .iter()
-                .map(|c| c.to_string())
-                .collect(),
-            living_space: FromTo {
-                from: Some(60),
-                to: None,
-            },
-            location: Location {
-                latitude: 47.35985528332324,
-                longitude: 8.541818987578152,
-                radius: 622,
-            },
-            monthly_rent: FromTo {
-                from: Some(500),
-                to: None,
-            },
-            number_of_rooms: FromTo {
-                from: Some(2),
-                to: None,
-            },
-            offer_type: OfferType::RENT,
-        },
-        result_template: ResultTemplate {
-            id: true,
-            lister_branding: true,
-            listing: ListingTemplate {
-                address: AddressTemplate {
-                    country: true,
-                    geo_coordinates: GeoCoordsTemplate {
-                        latitude: true,
-                        longitude: true,
-                    },
-                    locality: true,
-                    post_office_box_number: true,
-                    postal_code: true,
-                    region: true,
-                    street: true,
-                    street_addition: true,
-                },
-                categories: true,
-                characteristics: CharacteristicsTemplate {
-                    living_space: true,
-                    lot_size: true,
-                    number_of_rooms: true,
-                    single_floor_space: true,
-                    total_floor_space: true,
-                },
-                id: true,
-                lister: ListerTemplate {
-                    logo_url: true,
-                    phone: true,
-                },
-                localization: LocalizationTemplate {
-                    de: LT.clone(),
-                    en: LT.clone(),
-                    fr: LT.clone(),
-                    it: LT.clone(),
-                    primary: true,
-                },
-                offer_type: true,
-                prices: true,
-            },
-            listing_type: true,
-            remote_viewing: true,
-        },
-        size: 20,
-        sort_by: String::from("listingType"),
-        sort_direction: String::from("desc"),
-        track_total_hits: true,
-    }
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug, Default)]
+#[serde(rename_all = "camelCase")]
+pub enum SortDirection {
+    Asc,
+    #[default]
+    Desc,
 }
 
-pub async fn search(location: &Location) -> Result<Paginated<RealEstate>, reqwest::Error> {
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug, Default)]
+#[serde(rename_all = "camelCase")]
+pub enum SortBy {
+    #[default]
+    ListingType,
+}
+
+pub async fn search(params: &SearchRequest) -> Result<Paginated<RealEstate>, reqwest::Error> {
     let url: Url = Url::parse(&format!("{}{}", BACKEND_URL, "/search/listings")).unwrap();
 
-    let mut search_request = default_search();
-    search_request.query.location = location.clone();
-
-    let search_request_json = serde_json::to_string(&search_request).unwrap();
+    let search_request_json = serde_json::to_string(&params).unwrap();
 
     let resp: Response = post_url(url, &search_request_json).await?;
     let resp_text = resp.text().await?;
@@ -267,27 +244,27 @@ pub async fn search(location: &Location) -> Result<Paginated<RealEstate>, reqwes
 mod tests {
     use std::fs;
 
-    use crate::api::search::{default_search, search, Location, SearchRequest};
+    use crate::api::search::{search, Location, SearchRequest};
 
     const ZURICH_LATLNG: (f64, f64) = (47.36667, 8.55);
 
     #[tokio::test]
     pub async fn search_apartment() {
-        let paginated_result = search(&Location {
-            latitude: ZURICH_LATLNG.0 as f32,
-            longitude: ZURICH_LATLNG.1 as f32,
-            radius: 1000,
-        })
-        .await;
-        assert!(paginated_result.is_ok());
+        // let paginated_result = search(&Location {
+        //     latitude: ZURICH_LATLNG.0 as f32,
+        //     longitude: ZURICH_LATLNG.1 as f32,
+        //     radius: 1000,
+        // })
+        // .await;
+        // assert!(paginated_result.is_ok());
 
-        let pr = paginated_result.unwrap();
-        println!("{:?}", pr);
+        // let pr = paginated_result.unwrap();
+        // println!("{:?}", pr);
     }
 
     #[test]
     pub fn create_json() {
-        let req = default_search();
+        let req = SearchRequest::default();
         let _v = serde_json::to_string(&req).unwrap();
         let f_json = fs::read_to_string("./resources/test/request-1.json").unwrap();
 

@@ -5,7 +5,7 @@ use crate::models::listing::Listing;
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct RealEstate {
-    pub id: String,
+    pub id: Option<String>,
     pub listing: Listing,
 }
 
@@ -15,9 +15,11 @@ pub struct ListingTypeWrapper {
     pub t: ListingType,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub enum OfferType {
+    #[default]
     RENT,
+    BUY,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
