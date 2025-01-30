@@ -244,22 +244,29 @@ pub async fn search(params: &SearchRequest) -> Result<Paginated<RealEstate>, req
 mod tests {
     use std::fs;
 
-    use crate::api::search::{search, Location, SearchRequest};
+    use crate::api::search::{search, Location, Query, SearchRequest};
 
     const ZURICH_LATLNG: (f64, f64) = (47.36667, 8.55);
 
     #[tokio::test]
     pub async fn search_apartment() {
-        // let paginated_result = search(&Location {
-        //     latitude: ZURICH_LATLNG.0 as f32,
-        //     longitude: ZURICH_LATLNG.1 as f32,
-        //     radius: 1000,
-        // })
-        // .await;
-        // assert!(paginated_result.is_ok());
+        let paginated_result = search(&SearchRequest {
+            query: Query {
+                location: Location {
+                    latitude: Some(ZURICH_LATLNG.0 as f32),
+                    longitude: Some(ZURICH_LATLNG.1 as f32),
+                    radius: Some(1000),
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+            ..Default::default()
+        })
+        .await;
+        assert!(paginated_result.is_ok());
 
-        // let pr = paginated_result.unwrap();
-        // println!("{:?}", pr);
+        let pr = paginated_result.unwrap();
+        println!("{:?}", pr);
     }
 
     #[test]

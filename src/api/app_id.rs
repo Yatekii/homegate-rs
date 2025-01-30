@@ -23,7 +23,7 @@ fn calculate_hmac(s: &str) -> String {
         j = i + 1;
         buffer[i] = result[i + b as usize];
         if j > 3 {
-            buffer[0] = buffer[0] & 0xFF;
+            buffer[0] &= 0xFF;
             let mut rdr = Cursor::new(buffer);
             let n = rdr.read_i32::<BigEndian>().unwrap();
             return format!("{}", n);
@@ -32,16 +32,16 @@ fn calculate_hmac(s: &str) -> String {
 }
 
 pub fn calculate_app_id(time: &chrono::NaiveDateTime) -> String {
-    let time_millis = time.timestamp_millis() as u64;
-    let ceil = (f64::from((time_millis / 1000) as u32) / f64::from(60.0)).ceil();
+    let time_millis = time.and_utc().timestamp_millis() as u64;
+    let ceil = (f64::from((time_millis / 1000) as u32) / 60.0).ceil();
     let s = format!("{}{}{}", USER_AGENT, app_version(), ceil);
 
-    return calculate_hmac(&s);
+    calculate_hmac(&s)
 }
 
 pub fn app_version() -> String {
     let sdk_version = 30;
-    return format!("Homegate/12.6.0/12060003/Android/{}", sdk_version);
+    format!("Homegate/12.6.0/12060003/Android/{}", sdk_version)
 }
 
 #[cfg(test)]
@@ -54,10 +54,10 @@ mod test {
         assert_eq!(
             "1926888397",
             calculate_app_id(&chrono::NaiveDateTime::new(
-                chrono::NaiveDate::from_ymd(2022, 1, 25),
-                chrono::NaiveTime::from_hms(1, 30, 56)
+                chrono::NaiveDate::from_ymd_opt(2022, 1, 25).unwrap(),
+                chrono::NaiveTime::from_hms_opt(1, 30, 56).unwrap()
             ),)
         );
-        return Ok(());
+        Ok(())
     }
 }
